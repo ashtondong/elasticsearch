@@ -13,9 +13,9 @@ class Wrapper
 end
 
 class Loader
+
     def self.convert_csv
         file_path = "/Users/Ashton/Desktop/studysoup/elasticsearch/datafiles/bestsellers.csv"
-        client = Elasticsearch::Client.new
 
         # csv and json file paths
         csv_file = file_path
@@ -54,11 +54,20 @@ class Loader
 
     end
 
-    def self.delete
+    def self.delete index, id=nil
+        client = Elasticsearch::Client.new
+
+        if id == nil
+            client.indices.delete(index: index)
+        else 
+            client.delete(index: index, id: id)
+        end
         
     end
 
     def self.search term
+        client = Elasticsearch::Client.new
+
         # agg on genre and year that fit query, look into generating relevant top five
         # return query
     end
