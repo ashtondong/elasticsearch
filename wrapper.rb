@@ -13,26 +13,35 @@ class Wrapper
 end
 
 class Loader
-    def self.import file_path = "/Users/Ashton/Desktop/studysoup/elasticsearch/datafiles/bestsellers.csv"
+    def self.convert_csv
+        file_path = "/Users/Ashton/Desktop/studysoup/elasticsearch/datafiles/bestsellers.csv"
         client = Elasticsearch::Client.new
 
         # csv and json file paths
         csv_file = file_path
         json_file = "/Users/Ashton/Desktop/studysoup/elasticsearch/datafiles/bestsellers.json"
 
-        # # read csv file, including headers
-        # csv_data = CSV.read(csv_file, headers: true)
+        # read csv file, including headers
+        csv_data = CSV.read(csv_file, headers: true)
 
-        # # convert to hash
-        # csv_hash = csv_data.map(&:to_h)
+        # convert to hash
+        csv_hash = csv_data.map(&:to_h)
 
-        # # pretty json format
-        # json_data = JSON.pretty_generate(csv_hash)
+        # pretty json format
+        json_data = JSON.pretty_generate(csv_hash)
 
-        # # write onto json file
-        # File.write(json_file, json_data)
+        # write onto json file
+        File.write(json_file, json_data)
+    
+    end
 
-        # puts "success"
+
+    def self.import file_path = "/Users/Ashton/Desktop/studysoup/elasticsearch/datafiles/bestsellers.csv"
+        client = Elasticsearch::Client.new
+
+        # csv and json file paths
+        csv_file = file_path
+        json_file = "/Users/Ashton/Desktop/studysoup/elasticsearch/datafiles/bestsellers.json"
 
         read_json = File.read(json_file)
 
@@ -45,8 +54,16 @@ class Loader
 
     end
 
-end
+    def self.delete
+        
+    end
+
+    def self.search term
+        # agg on genre and year that fit query, look into generating relevant top five
+        # return query
+    end
+
 
 end
 
-Wrapper::Loader.import
+end
