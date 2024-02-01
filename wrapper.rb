@@ -65,11 +65,32 @@ class Loader
         
     end
 
-    def self.search term
+    # tested using params "new_bestsellers", "Non Fiction", "Lies"
+    def self.search index, genre, term
         client = Elasticsearch::Client.new
-
-        # agg on genre and year that fit query, look into generating relevant top five
+        # agg on genre and year, look into generating relevant top results
         # return query
+
+        client.search(index: index, body: { 
+            aggs: {
+                "genre_aggs":{
+                    "filter": {
+                        "term": {
+                            "Genre.keyword": genre
+                            }
+                        }
+                    
+                    }
+                },
+            query: {
+                "match":{
+                    "Name": {
+                        query: term
+                    } 
+                }
+            }
+        }
+    )
     end
 
 

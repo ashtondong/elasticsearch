@@ -152,3 +152,16 @@ client.search(index:"a_b_v2", body: {
     }
 }
 )
+
+# returns a breakout between docs per genre
+# Non Fiction 310, Fiction 237
+client.search(index: "new_bestsellers", body: { 
+    aggs: {
+        "genre_aggs":{
+            "terms": {
+                     "field": "Genre.keyword"
+                }
+            }
+        }
+    }       
+)
