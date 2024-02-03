@@ -72,6 +72,13 @@ class Loader
         # return query
 
         client.search(index: index, body: { 
+            # aggs: {
+            #     "year": {
+            #         "filter": {
+            #             #date
+            #         }
+            #     }
+            # }
             aggs: {
                 "genre_aggs":{
                     "filter": {
@@ -93,6 +100,10 @@ class Loader
     )
     end
 
+    def self.update index, id, body
+        client = Elasticsearch::Client.new
+        client.index(index: index, id: id, body: body)
+    end
 
 end
 
