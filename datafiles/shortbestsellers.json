@@ -1,0 +1,92 @@
+[
+    {
+        "Name": "10-Day Green Smoothie Cleanse",
+        "Author": "JJ Smith",
+        "User Rating": "4.7",
+        "Reviews": "17350",
+        "Price": "8",
+        "Year": "2016",
+        "Genre": "Non Fiction"
+    },
+    {
+        "Name": "11/22/63: A Novel",
+        "Author": "Stephen King",
+        "User Rating": "4.6",
+        "Reviews": "2052",
+        "Price": "22",
+        "Year": "2011",
+        "Genre": "Fiction"
+    },
+    {
+        "Name": "12 Rules for Life: An Antidote to Chaos",
+        "Author": "Jordan B. Peterson",
+        "User Rating": "4.7",
+        "Reviews": "18979",
+        "Price": "15",
+        "Year": "2018",
+        "Genre": "Non Fiction"
+    },
+    {
+        "Name": "1984 (Signet Classics)",
+        "Author": "George Orwell",
+        "User Rating": "4.7",
+        "Reviews": "21424",
+        "Price": "6",
+        "Year": "2017",
+        "Genre": "Fiction"
+    },
+    {
+        "Name": "5,000 Awesome Facts (About Everything!) (National Geographic Kids)",
+        "Author": "National Geographic Kids",
+        "User Rating": "4.8",
+        "Reviews": "7665",
+        "Price": "12",
+        "Year": "2019",
+        "Genre": "Non Fiction"
+    },
+    {
+        "Name": "A Dance with Dragons (A Song of Ice and Fire)",
+        "Author": "George R. R. Martin",
+        "User Rating": "4.4",
+        "Reviews": "12643",
+        "Price": "11",
+        "Year": "2011",
+        "Genre": "Fiction"
+    },
+    {
+        "Name": "A Game of Thrones / A Clash of Kings / A Storm of Swords / A Feast of Crows / A Dance with Dragons",
+        "Author": "George R. R. Martin",
+        "User Rating": "4.7",
+        "Reviews": "19735",
+        "Price": "30",
+        "Year": "2014",
+        "Genre": "Fiction"
+    },
+    {
+        "Name": "A Gentleman in Moscow: A Novel",
+        "Author": "Amor Towles",
+        "User Rating": "4.7",
+        "Reviews": "19699",
+        "Price": "15",
+        "Year": "2017",
+        "Genre": "Fiction"
+    },
+    {
+        "Name": "A Higher Loyalty: Truth, Lies, and Leadership",
+        "Author": "James Comey",
+        "User Rating": "4.7",
+        "Reviews": "5983",
+        "Price": "3",
+        "Year": "2018",
+        "Genre": "Non Fiction"
+    },
+    {
+        "Name": "A Man Called Ove: A Novel",
+        "Author": "Fredrik Backman",
+        "User Rating": "4.6",
+        "Reviews": "23848",
+        "Price": "8",
+        "Year": "2016",
+        "Genre": "Fiction"
+    }
+]
