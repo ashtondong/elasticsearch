@@ -74,55 +74,39 @@ class Loader
         # return query
         if year != nil
             client.search(index: INDEX, body: { 
-            aggs: {
-                "genre_aggs":{
-                    "filter": {
-                        "term": {
-                            "Genre.keyword": genre
-                            }
+                query: {
+                    bool: {
+                        must: [
+                            { "match": { "Year": year } },
+                            { "match": { "Genre": genre } },
+                            { "match": { "Name": term } },
+                            ]
                         }
-                    
                     }
-                },
-            query: {
-                "match":{
-                    "Name": {
-                        query: term
-                    } 
                 }
-            }
-        }
-      )
+            )
         end
-        client.search(index: INDEX, body: { 
-            aggs: {
-                "books_by_year": {
-                    "date_histogram": {
-                        "field": "Year",
-                        "calendar_interval": "year",
-                        "format": "yyyy"
-                    }
-                }
-            },
-            aggs: {
-                "genre_aggs":{
-                    "filter": {
-                        "term": {
-                            "Genre.keyword": genre
-                            }
-                        }
+    # ------------ OLD CODE BELOW ----------
+    # client.search(index: INDEX, body: { 
+    #         aggs: {
+    #             "genre_aggs":{
+    #                 "filter": {
+    #                     "term": {
+    #                         "Genre.keyword": genre
+    #                         }
+    #                     }
                     
-                    }
-                },
-            query: {
-                "match":{
-                    "Name": {
-                        query: term
-                    } 
-                }
-            }
-        }
-    )
+    #                 }
+    #             },
+    #         query: {
+    #             "match":{
+    #                 "Name": {
+    #                     query: term
+    #                 } 
+    #             }
+    #         }
+    #     }
+    # )
     end
 
     def self.update id, body
