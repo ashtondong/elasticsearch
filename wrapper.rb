@@ -74,13 +74,6 @@ class Loader
         # return query
         if year != nil
             client.search(index: INDEX, body: { 
-            # aggs: {
-            #     "year": {
-            #         "filter": {
-            #             #date
-            #         }
-            #     }
-            # }
             aggs: {
                 "genre_aggs":{
                     "filter": {
@@ -102,13 +95,15 @@ class Loader
       )
         end
         client.search(index: INDEX, body: { 
-            # aggs: {
-            #     "year": {
-            #         "filter": {
-            #             #date
-            #         }
-            #     }
-            # }
+            aggs: {
+                "books_by_year": {
+                    "date_histogram": {
+                        "field": "Year",
+                        "calendar_interval": "year",
+                        "format": "yyyy"
+                    }
+                }
+            },
             aggs: {
                 "genre_aggs":{
                     "filter": {
