@@ -68,7 +68,7 @@ class Loader
     end
 
     # tested using params "new_bestsellers", "Non Fiction", "Lies"
-    def self.search genre, term, year=nil
+    def self.search genre=nil, term=nil, year=nil
         client = Elasticsearch::Client.new
         # agg on genre and year, look into generating relevant top results
         # return query
@@ -85,7 +85,45 @@ class Loader
                     }
                 }
             )
+
+        elsif genre != nil && term != nil
+            client.search(index: INDEX, body: { 
+                query: {
+                    bool: {
+                        must: [
+                            { "match": { "Genre": genre } },
+                            { "match": { "Name": term } },
+                            ]
+                        }
+                    }
+                }
+            )
+
+        elsif genre != nil
+            client.search(index: INDEX, body: {
+                query: {
+                    "match": {
+                        "Genre.keyword": genre
+                        }
+                    }
+                }
+            ) 
+
+        else 
+            client.search(index: INDEX, body: {
+                "size": 0,
+                aggs: {
+                    "genre_aggs": {
+                        "terms": {
+                            "field": "Genre.keyword"
+                            }
+                        }
+                    } 
+                     
+                }
+             )
         end
+
     # ------------ OLD CODE BELOW ----------
     # client.search(index: INDEX, body: { 
     #         aggs: {
