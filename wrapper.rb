@@ -14,7 +14,7 @@ end
 
 class Loader
 
-    INDEX = "short_bestsellers" # "new_bestsellers" is the full length data set
+    INDEX = "new_bestsellers" # "new_bestsellers" is the full length data set
 
     def self.convert_csv
         file_path = "/Users/Ashton/Desktop/studysoup/elasticsearch/datafiles/bestsellers.csv"
@@ -67,8 +67,7 @@ class Loader
         
     end
 
-    # tested using params "new_bestsellers", "Non Fiction", "Lies"
-    def self.search genre=nil, term=nil, year=nil
+    def self.search term=nil, genre=nil, year=nil
         client = Elasticsearch::Client.new
         # agg on genre and year, look into generating relevant top results
         # return query
@@ -76,9 +75,9 @@ class Loader
             client.search(index: INDEX, body: { 
                 query: {
                     bool: {
-                        must: [
+                        must: [ # demo with "1984", "Fiction", "1970"
                             { "match": { "Year": year } },
-                            { "match": { "Genre": genre } },
+                            { "match": { "Genre.keyword": genre } },
                             { "match": { "Name": term } },
                             ]
                         }
@@ -86,30 +85,20 @@ class Loader
                 }
             )
 
-        elsif genre != nil && term != nil
+        elsif term != nil # option to search genre, name, and author using one argument
             client.search(index: INDEX, body: { 
                 query: {
-                    bool: {
-                        must: [
-                            { "match": { "Genre": genre } },
-                            { "match": { "Name": term } },
-                            ]
+                    "multi_match": { 
+                        "query": term,
+                        "type": "cross_fields",
+                        "fields": ["Name^2", "Genre", "Author"], # demo with "George", "Math"
+                        "minimum_should_match": 2
                         }
                     }
                 }
             )
 
-        elsif genre != nil
-            client.search(index: INDEX, body: {
-                query: {
-                    "match": {
-                        "Genre.keyword": genre
-                        }
-                    }
-                }
-            ) 
-
-        else 
+        else # option to produce all available genres without requiring input
             client.search(index: INDEX, body: {
                 "size": 0,
                 aggs: {
@@ -124,32 +113,16 @@ class Loader
              )
         end
 
-    # ------------ OLD CODE BELOW ----------
-    # client.search(index: INDEX, body: { 
-    #         aggs: {
-    #             "genre_aggs":{
-    #                 "filter": {
-    #                     "term": {
-    #                         "Genre.keyword": genre
-    #                         }
-    #                     }
-                    
-    #                 }
-    #             },
-    #         query: {
-    #             "match":{
-    #                 "Name": {
-    #                     query: term
-    #                 } 
-    #             }
-    #         }
-    #     }
-    # )
     end
 
     def self.update id, body
         client = Elasticsearch::Client.new
         client.update(index: INDEX, id: id, body: {doc: body})
+    end
+
+    def self.insert name, author, genre, year
+        client = Elasticsearch::Client.new
+        client.index(index: INDEX, body: {"Name": name, "Author": author, "Genre": genre, "Year": year})
     end
 
 end
