@@ -14,7 +14,7 @@ end
 
 class Loader
 
-    INDEX = "new_bestsellers" # "new_bestsellers" is the full length data set
+    INDEX = "new_bestsellers" # "new_bestsellers" is the full length data set, "short_bestsellers is a redacted version"
 
     def self.convert_csv
         file_path = "/Users/Ashton/Desktop/studysoup/elasticsearch/datafiles/bestsellers.csv"
@@ -90,8 +90,10 @@ class Loader
                 query: {
                     "multi_match": { 
                         "query": term,
+                        # cross_field allows us to look for the terms and criteria across all specified fields
+                        # especially when using "operator" and "minimum_should_match" because the best_fields default is field-centric looking for all requirments in each field in order to return a matching doc.
                         "type": "cross_fields",
-                        "fields": ["Name^2", "Genre", "Author"], # demo with "George", "Math"
+                        "fields": ["Name^2", "Genre", "Author"], # demo Name^2 field boosting with "George" and "best_fields" vs "cross_fields" with "math colleen dragons"
                         "minimum_should_match": 2
                         }
                     }
