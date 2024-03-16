@@ -67,53 +67,58 @@ class Loader
         
     end
 
-    def self.search term=nil, genre=nil, year=nil
+
+    def self.multi_match (term)
+        {
+        "multi_match": { 
+            "query": term,
+            # cross_field allows us to look for the terms and criteria across all specified fields
+            # especially when using "operator" and "minimum_should_match" because the best_fields default is field-centric looking for all requirments in each field in order to return a matching doc.
+            "type": "cross_fields",
+            "fields": ["Name^2", "Genre", "Author"], # demo Name^2 field boosting with "George" and "best_fields" vs "cross_fields" with "math colleen dragons"
+            "minimum_should_match": 2
+            }
+        }
+    end
+
+
+    def self.search term:nil, genre:nil, year:nil
         client = Elasticsearch::Client.new
-        # agg on genre and year, look into generating relevant top results
-        # return query
-        if year != nil
-            client.search(index: INDEX, body: { 
+        
+        # this allows for an array of hashes that is dynamically added if the parameters of "search" are given
+        # user input must now include term:"term", genre:"genre", or year:"year"
+        queries = []
+        queries << multi_match(term) unless term.nil?
+        queries << { "match": { "Genre.keyword": genre } } unless genre.nil?
+        queries << { "match": { "Year": year } } unless year.nil?
+
+            return client.search(index: INDEX, body: { 
                 query: {
                     bool: {
-                        must: [ # demo with "1984", "Fiction", "1970"
-                            { "match": { "Year": year } },
-                            { "match": { "Genre.keyword": genre } },
-                            { "match": { "Name": term } },
-                            ]
+                        must: queries # this will only run whichever queries are present and allows the user to enter whatever parameters they wish
                         }
                     }
                 }
             )
 
-        elsif term != nil # option to search genre, name, and author using one argument
-            client.search(index: INDEX, body: { 
-                query: {
-                    "multi_match": { 
-                        "query": term,
-                        # cross_field allows us to look for the terms and criteria across all specified fields
-                        # especially when using "operator" and "minimum_should_match" because the best_fields default is field-centric looking for all requirments in each field in order to return a matching doc.
-                        "type": "cross_fields",
-                        "fields": ["Name^2", "Genre", "Author"], # demo Name^2 field boosting with "George" and "best_fields" vs "cross_fields" with "math colleen dragons"
-                        "minimum_should_match": 2
-                        }
-                    }
-                }
-            )
+         # TODO: look into filters, aggregates (buckets)
+         # we want to create a feature that if a user selected a filter for multiple genres, that it will return multiple genres aggregate
 
-        else # option to produce all available genres without requiring input
-            client.search(index: INDEX, body: {
-                "size": 0,
-                aggs: {
-                    "genre_aggs": {
-                        "terms": {
-                            "field": "Genre.keyword"
-                            }
-                        }
-                    } 
+        # THIS CODE IS NO LONGER NEEDED BUT HERE TO HELP WITH AGGS TEMPLATES FOR ABOVE TODO.
+        # else # option to produce all available genres without requiring input
+        #     client.search(index: INDEX, body: {
+        #         "size": 0,
+        #         aggs: {
+        #             "genre_aggs": {
+        #                 "terms": {
+        #                     "field": "Genre.keyword"
+        #                     }
+        #                 }
+        #             } 
                      
-                }
-             )
-        end
+        #         }
+        #      )
+        # end
 
     end
 
