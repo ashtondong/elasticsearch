@@ -68,21 +68,21 @@ class Loader
     end
 
 
-    def self.multi_match (term)
+    def self.multi_match(term)
         {
-        "multi_match": { 
-            "query": term,
-            # cross_field allows us to look for the terms and criteria across all specified fields
-            # especially when using "operator" and "minimum_should_match" because the best_fields default is field-centric looking for all requirments in each field in order to return a matching doc.
-            "type": "cross_fields",
-            "fields": ["Name^2", "Genre", "Author"], # demo Name^2 field boosting with "George" and "best_fields" vs "cross_fields" with "math colleen dragons"
-            "minimum_should_match": 2
+            "multi_match": { 
+                "query": term,
+                # cross_field allows us to look for the terms and criteria across all specified fields
+                # especially when using "operator" and "minimum_should_match" because the best_fields default is field-centric looking for all requirments in each field in order to return a matching doc.
+                "type": "cross_fields",
+                "fields": ["Name^2", "Genre", "Author"], # demo Name^2 field boosting with "George" and "best_fields" vs "cross_fields" with "math colleen dragons"
+                "minimum_should_match": 2
             }
         }
     end
 
 
-    def self.search term:nil, genre:nil, year:nil
+    def self.search term:nil, genre:nil, year:nil, author:nil
         client = Elasticsearch::Client.new
         
         # this allows for an array of hashes that is dynamically added if the parameters of "search" are given
@@ -91,11 +91,12 @@ class Loader
         queries << multi_match(term) unless term.nil?
         queries << { "match": { "Genre.keyword": genre } } unless genre.nil?
         queries << { "match": { "Year": year } } unless year.nil?
+        queries << { "match": { "Author": author } } unless author.nil?
 
             return client.search(index: INDEX, body: { 
                 query: {
                     bool: {
-                        must: queries # this will only run whichever queries are present and allows the user to enter whatever parameters they wish
+                        must: queries # queries will only run whichever queries are present and allows the user to enter whatever parameters they wish
                         }
                     }
                 }
@@ -103,22 +104,23 @@ class Loader
 
          # TODO: look into filters, aggregates (buckets)
          # we want to create a feature that if a user selected a filter for multiple genres, that it will return multiple genres aggregate
+    
+    end
+    
+    def self.filter filter_view
+        client = Elasticsearch::Client.new
 
-        # THIS CODE IS NO LONGER NEEDED BUT HERE TO HELP WITH AGGS TEMPLATES FOR ABOVE TODO.
-        # else # option to produce all available genres without requiring input
-        #     client.search(index: INDEX, body: {
-        #         "size": 0,
-        #         aggs: {
-        #             "genre_aggs": {
-        #                 "terms": {
-        #                     "field": "Genre.keyword"
-        #                     }
-        #                 }
-        #             } 
-                     
-        #         }
-        #      )
-        # end
+        fields = { "filters": { "terms": { "field": "Author.keyword" } } } if filter_view == "Author"
+        fields = { "filters": { "terms": { "field": "Genre.keyword" } } } if filter_view == "Genre"
+        fields = { "filters": { "terms": { "field": "Year.keyword" } } } if filter_view == "Year"
+
+        client.search(index: INDEX, body: {
+                "size": 20,
+                aggs: fields
+                
+                }
+             )
+    
 
     end
 
