@@ -107,19 +107,42 @@ class Loader
     
     end
     
-    def self.filter filter_view
+    def self.filter genre, year
         client = Elasticsearch::Client.new
 
-        fields = { "filters": { "terms": { "field": "Author.keyword" } } } if filter_view == "Author"
-        fields = { "filters": { "terms": { "field": "Genre.keyword" } } } if filter_view == "Genre"
-        fields = { "filters": { "terms": { "field": "Year.keyword" } } } if filter_view == "Year"
-
+        # TODO: make this dyanmic so the user can input filter however they want instead of being confined to genre, author, and year
+        
         client.search(index: INDEX, body: {
-                "size": 20,
-                aggs: fields
-                
+                # runs a query for requested genre
+                query: {
+                    bool: {
+                        filter: [
+                            { "match": { "Genre": genre } }
+                            ]
+                        }
+                },
+                # takes the returned query results and aggregates on agg_request first before filtering by filter_request
+                aggs: {
+                    "agg_request": {
+                        "terms": {
+                            "field": "Author.keyword"
+                        }
+                    },
+                    "filter_request": {
+                        "filter": {
+                            "term": { "Year": year}
+                        }
+                    }
+                },
+                # post_filter removes all results shown that is not under the requested genre, author, and year
+                # test with genre: math, agg by author, filter by year: 1997 (try removing post_filter and see that irrelavent results will show in this example)
+                # if we remove post_filter, all results will show with the above returned values from query and aggs even if it doesn't fall in the filter_request
+                post_filter: {
+                    "term": { "Year": year}
                 }
-             )
+            }
+        
+        )
     
 
     end
