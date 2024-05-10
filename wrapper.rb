@@ -75,90 +75,58 @@ class Loader
                 # cross_field allows us to look for the terms and criteria across all specified fields
                 # especially when using "operator" and "minimum_should_match" because the best_fields default is field-centric looking for all requirments in each field in order to return a matching doc.
                 "type": "cross_fields",
-                "fields": ["Name^2", "Genre", "Author"], # demo Name^2 field boosting with "George" and "best_fields" vs "cross_fields" with "math colleen dragons"
+                "fields": ["Name^2", "Genre", "Author", "Year"], # demo Name^2 field boosting with "George" and "best_fields" vs "cross_fields" with "math colleen dragons"
                 "minimum_should_match": 2
             }
         }
     end
 
 
-    def self.search term:nil, genre:nil, year:nil, author:nil
+    def self.genre_aggregation
+        {
+            "genres": {
+                "terms": { "field": "Genre.keyword"}
+                }
+
+        }   
+    end
+
+
+    def self.search term=nil
+    # user input can include an argument for term or no argument for term (default)
+
         client = Elasticsearch::Client.new
         
-        # this allows for an array of hashes that is dynamically added if the parameters of "search" are given
-        # user input must now include term:"term", genre:"genre", or year:"year"
         queries = []
-        queries << multi_match(term) unless term.nil?
-        queries << { "match": { "Genre.keyword": genre } } unless genre.nil?
-        queries << { "match": { "Year": year } } unless year.nil?
-        queries << { "match": { "Author": author } } unless author.nil?
+        # this allows for an array of hashes that is dynamically added if the arguments of "search" are given
+        queries << multi_match(term) unless term.nil? 
 
             return client.search(index: INDEX, body: { 
                 query: {
                     bool: {
-                        must: queries # queries will only run whichever queries are present and allows the user to enter whatever parameters they wish
-                        }
-                    }
-                }
-            )
-
-         # TODO: look into filters, aggregates (buckets)
-         # we want to create a feature that if a user selected a filter for multiple genres, that it will return multiple genres aggregate
-    
-    end
-    
-    def self.filter genre, year
-        client = Elasticsearch::Client.new
-
-        # TODO: make this dyanmic so the user can input filter however they want instead of being confined to genre, author, and year
-        
-        client.search(index: INDEX, body: {
-                # runs a query for requested genre
-                query: {
-                    bool: {
-                        filter: [
-                            { "match": { "Genre": genre } }
-                            ]
-                        }
-                },
-                # takes the returned query results and aggregates on agg_request first before filtering by filter_request
-                aggs: {
-                    "agg_request": {
-                        "terms": {
-                            "field": "Author.keyword"
-                        }
-                    },
-                    "filter_request": {
-                        "filter": {
-                            "term": { "Year": year}
-                        }
+                        must: queries # searches across the multi_match fields
                     }
                 },
-                # post_filter removes all results shown that is not under the requested genre, author, and year
-                # test with genre: math, agg by author, filter by year: 1997 (try removing post_filter and see that irrelavent results will show in this example)
-                # if we remove post_filter, all results will show with the above returned values from query and aggs even if it doesn't fall in the filter_request
-                post_filter: {
-                    "term": { "Year": year}
-                }
+                aggs: genre_aggregation # aggregates query results by genre
             }
-        
         )
     
-
     end
+    
 
     def self.update id, body
         client = Elasticsearch::Client.new
         client.update(index: INDEX, id: id, body: {doc: body})
     end
 
+
     def self.insert name, author, genre, year
         client = Elasticsearch::Client.new
         client.index(index: INDEX, body: {"Name": name, "Author": author, "Genre": genre, "Year": year})
     end
 
-end
 
 end
 
-#test git
+
+end
