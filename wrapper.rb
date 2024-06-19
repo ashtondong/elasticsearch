@@ -112,6 +112,24 @@ class Loader
         )
     
     end
+
+    def self.filter_year year
+        client = Elasticsearch::Client.new
+
+        client.search(index: INDEX, body:{
+            query: {
+                "match": {
+                    "Year": {
+                        "query": year
+                    }
+
+                }
+            }
+         }
+        )
+
+
+    end
     
 
     def self.update id, body
